@@ -28,7 +28,8 @@ public class WordCount {
 		 * setup中可以做一些map的准备工作,如定义全局变量等
 		 */
 		@Override
-		protected void setup(Mapper<Object, Text, Text, IntWritable>.Context context) throws IOException, InterruptedException {
+		protected void setup(Mapper<Object, Text, Text, IntWritable>.Context context)
+				throws IOException, InterruptedException {
 			System.out.println("#######我是mapper的setup方法");
 			super.setup(context);
 		}
@@ -52,7 +53,8 @@ public class WordCount {
 		 * cleanup可以做一些收尾的工作,如销毁变量，结束连接等。
 		 */
 		@Override
-		protected void cleanup(Mapper<Object, Text, Text, IntWritable>.Context context) throws IOException, InterruptedException {
+		protected void cleanup(Mapper<Object, Text, Text, IntWritable>.Context context)
+				throws IOException, InterruptedException {
 			System.out.println("#######我是mapper的cleanup方法");
 			super.cleanup(context);
 		}
@@ -62,12 +64,14 @@ public class WordCount {
 		private IntWritable result = new IntWritable();
 
 		@Override
-		protected void setup(Reducer<Text, IntWritable, Text, IntWritable>.Context context) throws IOException, InterruptedException {
+		protected void setup(Reducer<Text, IntWritable, Text, IntWritable>.Context context)
+				throws IOException, InterruptedException {
 			System.out.println("$$$$$$$$$$$$$我是recucer的setup方法");
 			super.setup(context);
 		}
 
-		public void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
+		public void reduce(Text key, Iterable<IntWritable> values, Context context)
+				throws IOException, InterruptedException {
 			System.out.println("$$$$$$$$$$$$$$我是recucer的reduce方法");
 			int sum = 0;
 			for (IntWritable val : values) {
@@ -78,7 +82,8 @@ public class WordCount {
 		}
 
 		@Override
-		protected void cleanup(Reducer<Text, IntWritable, Text, IntWritable>.Context context) throws IOException, InterruptedException {
+		protected void cleanup(Reducer<Text, IntWritable, Text, IntWritable>.Context context)
+				throws IOException, InterruptedException {
 			System.out.println("$$$$$$$$$$$$$$我是recucer的cleanup方法");
 			super.cleanup(context);
 		}
@@ -110,7 +115,7 @@ public class WordCount {
 			System.err.println("Usage: wordcount <in> <out>");
 			System.exit(2);
 		}
-		Job job = new Job(conf, "word count");
+		Job job = Job.getInstance(conf, "word count");
 		job.setJarByClass(WordCount.class);
 		job.setMapperClass(TokenizerMapper.class);
 		job.setCombinerClass(IntSumReducer.class);
