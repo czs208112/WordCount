@@ -81,6 +81,13 @@ public class GroupByDemo {
 		try {
 			Configuration conf = new Configuration();
 
+			String[] otherArgs = new GenericOptionsParser(conf, args).getRemainingArgs();
+			if (otherArgs.length != 2) {
+				System.err.println(otherArgs.length);
+				System.err.println("Usage: wordcount <in> <out>");
+				System.exit(2);
+			}
+			
 			FileSystem fs = FileSystem.newInstance(new URI("hdfs://192.168.128.140:9000"), conf);
 			Path path = new Path("/user/hadoop/output");
 			if (fs.exists(path)) {
@@ -88,15 +95,8 @@ public class GroupByDemo {
 
 				if (!delete) {
 					System.out.println("删除output目录失败");
-					return;
+					System.exit(3);
 				}
-			}
-
-			String[] otherArgs = new GenericOptionsParser(conf, args).getRemainingArgs();
-			if (otherArgs.length != 2) {
-				System.err.println(otherArgs.length);
-				System.err.println("Usage: wordcount <in> <out>");
-				System.exit(2);
 			}
 			
 			Job job = Job.getInstance(conf, "word count");

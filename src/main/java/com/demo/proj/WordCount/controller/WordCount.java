@@ -2,9 +2,11 @@ package com.demo.proj.WordCount.controller;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.util.StringTokenizer;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
@@ -117,6 +119,18 @@ public class WordCount {
 			System.err.println("Usage: wordcount <in> <out>");
 			System.exit(2);
 		}
+
+		FileSystem fs = FileSystem.newInstance(new URI("hdfs://192.168.128.140:9000"), conf);
+		Path path = new Path("/user/hadoop/output");
+		if (fs.exists(path)) {
+			boolean delete = fs.delete(path, true);
+
+			if (!delete) {
+				System.out.println("删除output目录失败");
+				System.exit(3);
+			}
+		}
+
 		Job job = Job.getInstance(conf, "word count");
 		job.setJarByClass(WordCount.class);
 		job.setMapperClass(TokenizerMapper.class);
