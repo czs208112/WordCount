@@ -1,4 +1,4 @@
-package com.summit;
+package com.demo.proj.WordCount.controller;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -16,6 +16,8 @@ import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.GenericOptionsParser;
+
+import com.demo.utils.Utils;
 
 public class WordCount {
 

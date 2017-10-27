@@ -1,4 +1,4 @@
-package com.summit;
+package com.demo.common;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
