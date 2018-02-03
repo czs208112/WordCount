@@ -1,10 +1,6 @@
 package com.demo.proj.WordCount.controller;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.util.StringTokenizer;
-
+import com.demo.utils.Utils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -19,140 +15,143 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.GenericOptionsParser;
 
-import com.demo.utils.Utils;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.util.StringTokenizer;
 
 public class WordCount {
 
-	public static class TokenizerMapper extends Mapper<Object, Text, Text, IntWritable> {
+    public static class TokenizerMapper extends Mapper<Object, Text, Text, IntWritable> {
 
-		private final static IntWritable one = new IntWritable(1);
-		private Text word = new Text();
+        private final static IntWritable one = new IntWritable(1);
+        private Text word = new Text();
 
-		/**
-		 * setup中可以做一些map的准备工作,如定义全局变量等
-		 */
-		@Override
-		protected void setup(Mapper<Object, Text, Text, IntWritable>.Context context)
-				throws IOException, InterruptedException {
-			System.out.println("#######我是mapper的setup方法");
-			super.setup(context);
-		}
+        /**
+         * setup中可以做一些map的准备工作,如定义全局变量等
+         */
+        @Override
+        protected void setup(Mapper<Object, Text, Text, IntWritable>.Context context)
+                throws IOException, InterruptedException {
+            System.out.println("#######我是mapper的setup方法");
+            super.setup(context);
+        }
 
-		@Override
-		public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
-			// value = transformTextToUTF8(value, "utf-8");
-			System.out.println("#######我是mapper的map方法");
-			String line = "";
-			String charset = Utils.getProp("charset");
-			line = new String(value.getBytes(), 0, value.getLength(), charset);// 根据配置的charset值解析字节码
+        @Override
+        public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
+            // value = transformTextToUTF8(value, "utf-8");
+            System.out.println("#######我是mapper的map方法");
+            String line = "";
+            String charset = Utils.getProp("charset");
+            line = new String(value.getBytes(), 0, value.getLength(), charset);// 根据配置的charset值解析字节码
 
-			StringTokenizer itr = new StringTokenizer(line);
-			while (itr.hasMoreTokens()) {
-				word.set(itr.nextToken());
-				context.write(word, one);
-			}
-		}
+            StringTokenizer itr = new StringTokenizer(line);
+            while (itr.hasMoreTokens()) {
+                word.set(itr.nextToken());
+                context.write(word, one);
+            }
+        }
 
-		/**
-		 * cleanup可以做一些收尾的工作,如销毁变量，结束连接等。
-		 */
-		@Override
-		protected void cleanup(Mapper<Object, Text, Text, IntWritable>.Context context)
-				throws IOException, InterruptedException {
-			System.out.println("#######我是mapper的cleanup方法");
-			super.cleanup(context);
-		}
-	}
+        /**
+         * cleanup可以做一些收尾的工作,如销毁变量，结束连接等。
+         */
+        @Override
+        protected void cleanup(Mapper<Object, Text, Text, IntWritable>.Context context)
+                throws IOException, InterruptedException {
+            System.out.println("#######我是mapper的cleanup方法");
+            super.cleanup(context);
+        }
+    }
 
-	public static class IntSumReducer extends Reducer<Text, IntWritable, Text, IntWritable> {
-		private IntWritable result = new IntWritable();
+    public static class IntSumReducer extends Reducer<Text, IntWritable, Text, IntWritable> {
+        private IntWritable result = new IntWritable();
 
-		@Override
-		protected void setup(Reducer<Text, IntWritable, Text, IntWritable>.Context context)
-				throws IOException, InterruptedException {
-			System.out.println("$$$$$$$$$$$$$我是recucer的setup方法");
-			super.setup(context);
-		}
+        @Override
+        protected void setup(Reducer<Text, IntWritable, Text, IntWritable>.Context context)
+                throws IOException, InterruptedException {
+            System.out.println("$$$$$$$$$$$$$我是recucer的setup方法");
+            super.setup(context);
+        }
 
-		public void reduce(Text key, Iterable<IntWritable> values, Context context)
-				throws IOException, InterruptedException {
-			System.out.println("$$$$$$$$$$$$$$我是recucer的reduce方法");
-			int sum = 0;
-			for (IntWritable val : values) {
-				sum += val.get();
-			}
-			result.set(sum);
-			context.write(key, result);
-		}
+        public void reduce(Text key, Iterable<IntWritable> values, Context context)
+                throws IOException, InterruptedException {
+            System.out.println("$$$$$$$$$$$$$$我是recucer的reduce方法");
+            int sum = 0;
+            for (IntWritable val : values) {
+                sum += val.get();
+            }
+            result.set(sum);
+            context.write(key, result);
+        }
 
-		@Override
-		protected void cleanup(Reducer<Text, IntWritable, Text, IntWritable>.Context context)
-				throws IOException, InterruptedException {
-			System.out.println("$$$$$$$$$$$$$$我是recucer的cleanup方法");
-			super.cleanup(context);
-		}
-	}
+        @Override
+        protected void cleanup(Reducer<Text, IntWritable, Text, IntWritable>.Context context)
+                throws IOException, InterruptedException {
+            System.out.println("$$$$$$$$$$$$$$我是recucer的cleanup方法");
+            super.cleanup(context);
+        }
+    }
 
-	/**
-	 * 编码转换，解决乱码问题
-	 * 
-	 * @param text
-	 * @param encoding
-	 * @return
-	 */
-	public static Text transformTextToUTF8(Text text, String encoding) {
-		String value = null;
-		try {
-			value = new String(text.getBytes(), 0, text.getLength(), encoding);
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-		}
-		return new Text(value);
-	}
+    /**
+     * 编码转换，解决乱码问题
+     *
+     * @param text
+     * @param encoding
+     * @return
+     */
+    public static Text transformTextToUTF8(Text text, String encoding) {
+        String value = null;
+        try {
+            value = new String(text.getBytes(), 0, text.getLength(), encoding);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return new Text(value);
+    }
 
-	public static void main(String[] args) throws Exception {
-		Configuration conf = new Configuration();
+    public static void main(String[] args) throws Exception {
+        Configuration conf = new Configuration();
 
-		String[] otherArgs = new GenericOptionsParser(conf, args).getRemainingArgs();
-		if (otherArgs.length != 2) {
-			System.err.println(otherArgs.length);
-			System.err.println("Usage: wordcount <in> <out>");
-			System.exit(2);
-		}
+        String[] otherArgs = new GenericOptionsParser(conf, args).getRemainingArgs();
+        if (otherArgs.length != 2) {
+            System.err.println(otherArgs.length);
+            System.err.println("Usage: wordcount <in> <out>");
+            System.exit(2);
+        }
 
-		FileSystem fs = FileSystem.newInstance(new URI("hdfs://192.168.128.140:9000"), conf);
-		Path path = new Path("/user/hadoop/output");
-		if (fs.exists(path)) {
-			boolean delete = fs.delete(path, true);
+        FileSystem fs = FileSystem.newInstance(new URI(otherArgs[0].substring(0, otherArgs[0].indexOf("/user"))), conf);
+        Path path = new Path(otherArgs[1]);
+        if (fs.exists(path)) {
+            boolean delete = fs.delete(path, true);
 
-			if (!delete) {
-				System.out.println("删除output目录失败");
-				System.exit(3);
-			}
-		}
+            if (!delete) {
+                System.out.println("删除output目录失败");
+                System.exit(3);
+            }
+        }
 
-		Job job = Job.getInstance(conf, "word count");
-		job.setJarByClass(WordCount.class);
-		job.setMapperClass(TokenizerMapper.class);
-		job.setCombinerClass(IntSumReducer.class);
-		job.setReducerClass(IntSumReducer.class);
-		job.setOutputKeyClass(Text.class);
-		job.setOutputValueClass(IntWritable.class);
+        Job job = Job.getInstance(conf, "word count");
+        job.setJarByClass(WordCount.class);
+        job.setMapperClass(TokenizerMapper.class);
+        job.setCombinerClass(IntSumReducer.class);
+        job.setReducerClass(IntSumReducer.class);
+        job.setOutputKeyClass(Text.class);
+        job.setOutputValueClass(IntWritable.class);
 
-		// job.setNumReduceTasks(1);
+        // job.setNumReduceTasks(1);
 
-		job.setInputFormatClass(TextInputFormat.class);
-		job.setOutputFormatClass(TextOutputFormat.class);
+        job.setInputFormatClass(TextInputFormat.class);
+        job.setOutputFormatClass(TextOutputFormat.class);
 
-		FileInputFormat.addInputPath(job, new Path(otherArgs[0]));
-		FileOutputFormat.setOutputPath(job, new Path(otherArgs[1]));
+        FileInputFormat.addInputPath(job, new Path(otherArgs[0]));
+        FileOutputFormat.setOutputPath(job, new Path(otherArgs[1]));
 
-		// String input = pro.getProperty("input"); // 输入路径
-		// String output = pro.getProperty("output"); // 输出路径
-		//
-		// FileInputFormat.addInputPath(job, new Path(input));
-		// FileOutputFormat.setOutputPath(job, new Path(output));
+        // String input = pro.getProperty("input"); // 输入路径
+        // String output = pro.getProperty("output"); // 输出路径
+        //
+        // FileInputFormat.addInputPath(job, new Path(input));
+        // FileOutputFormat.setOutputPath(job, new Path(output));
 
-		System.exit(job.waitForCompletion(true) ? 0 : 1);
-	}
+        System.exit(job.waitForCompletion(true) ? 0 : 1);
+    }
 }
