@@ -40,7 +40,7 @@ public class WordCount {
         @Override
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
             // value = transformTextToUTF8(value, "utf-8");
-            System.out.println("#######我是mapper的map方法");
+            //System.out.println("#######我是mapper的map方法");
             String line = "";
             String charset = Utils.getProp("charset");
             line = new String(value.getBytes(), 0, value.getLength(), charset);// 根据配置的charset值解析字节码
